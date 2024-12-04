@@ -42,7 +42,7 @@ std::vector<Coord> letterIsAdjacent(const Graph& graph, char letter, Coord from)
 // Global success count, can pass to recursiveSearch as reference if modularization needed.
 int successSum = 0;
 std::vector<std::vector<bool>> visited;
-void recursiveSearch(Graph& graph, Coord from, std::vector<char> lettersToFind, Vec direction = {-4, -4}) {
+void recursiveSearch(Graph& graph, Coord from, std::vector<char> lettersToFind) {
     if(lettersToFind.empty()) {
         successSum++;
         printf("Done @ (%d, %d)\n", from.x, from.y);
@@ -50,16 +50,11 @@ void recursiveSearch(Graph& graph, Coord from, std::vector<char> lettersToFind, 
     }
     if(!coordInBounds(from, graph) ) return;
     auto adjacentSuccesses = letterIsAdjacent(graph, lettersToFind.front(), from);
-    // Flag to pick a direction and stick
     if(adjacentSuccesses.empty()) return;
     lettersToFind.erase(lettersToFind.begin()); 
     int curSum = successSum;
     for(auto successCoord : adjacentSuccesses) {
-        // calculate the motion
-        Coord motion = {successCoord.x - from.x, successCoord.y - from.y};
-        // success critera, follow direction of motion
-        if(direction.x == -4 || (motion.x == direction.x && motion.y == direction.y))
-            recursiveSearch(graph, successCoord, lettersToFind, motion);
+        recursiveSearch(graph, successCoord, lettersToFind);
     }
 }
 
