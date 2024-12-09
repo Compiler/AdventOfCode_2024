@@ -2,12 +2,56 @@
 
 #include "../helper.h"
 #include <algorithm>
+#include <climits>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
+
+int finalSum = 0;
+
+bool validatePage(std::vector<std::string>& pageEntries, std::unordered_map<std::string, std::vector<std::string>>& rules, bool root = true) {
+    print_vector(pageEntries); printf("\n");
+    std::unordered_map<std::string, int> seenBefore;
+    std::string entry;
+    bool validEntry = true;
+    bool wasInvalid = false;
+    std::vector<std::string> entries;
+    int swapIndex = INT_MAX;
+
+    for(int i = 0; i < entries.size(); i++) {
+        auto& entry = entries[i];
+        auto ruleIt = rules.find(entry);
+        std::string ruleViolated = "";
+        for(auto rule : ruleIt->second){
+            const auto ruleStr = rule; 
+            const bool ruleSeenBefore = ruleIt != rules.end() && seenBefore.find(ruleStr) != seenBefore.end();
+            const auto seenEntryBefore = seenBefore.find(entry) != seenBefore.end();
+            if(ruleSeenBefore) {
+                wasInvalid = true;
+                auto indexOfRule = seenBefore[entry];
+                validEntry = false;
+                ruleViolated = ruleStr;
+                std::swap(entries[i], entries[indexOfRule]);
+                break;
+            }
+        }
+        if(!validEntry){
+            wasInvalid = true;
+            break;
+        }
+        seenBefore.insert({entry, i});
+    }
+    if(!validEntry) validEntry = validatePage(pageEntries, rules, 0);
+    if(wasInvalid && root) finalSum += std::stoi(entries[entries.size() / 2]);
+    if(root) printf("Correct: ");
+    print_vector(pageEntries); printf("\n");
+
+    return true;
+}
 int main() {
     
     std::ifstream file("puzzle_input.txt");
@@ -30,31 +74,13 @@ int main() {
             int middleIndex = numEntries / 2;
             int middleEntry = 0;
             std::stringstream pageStream(line);
-            std::unordered_map<std::string, int> seenBefore;
             std::string entry;
-            bool validEntry = true;
-            int index = 0;
-            std::vector<std::string> page_order;
-            // Place an entry. While doing so, if we have ever seen it's rule-> invalid page.
+            std::vector<std::string> entries;
             while (std::getline(pageStream, entry, ',')) {
-                if(index == middleIndex) middleEntry = std::stoi(entry);
-                auto ruleIt = rules.find(entry);
-                std::string ruleViolated = "";
-                for(auto rule : ruleIt->second){
-                    const auto ruleStr = rule; 
-                    const bool ruleSeenBefore = ruleIt != rules.end() && seenBefore.find(ruleStr) != seenBefore.end();
-                    const auto seenEntryBefore = seenBefore.find(entry) != seenBefore.end();
-                    if(ruleSeenBefore) {
-                        validEntry = false;
-                        ruleViolated = ruleStr;
-                    }
-                }
-                if(validEntry) page_order.push_back(entry);
-                seenBefore.insert({entry, index});
-                index++;
+                entries.push_back(entry);
             }
-            numValid += validEntry * middleEntry;
+            if(validatePage(entries, rules)) numValid += std::stoi(entries[middleIndex]);
         }
     }
-    printf("Sum of valid middle entries: %d\n", numValid);
+    printf("Sum of valid middle entries: %d\n", finalSum);
 }
