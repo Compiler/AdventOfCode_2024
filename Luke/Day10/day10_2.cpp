@@ -45,16 +45,12 @@ int getCell(const Graph& g, const Point& p) {
     return g[p.y][p.x];
 }
 
-std::unordered_set<std::string> paths;
-int run_trail(Graph& graph, Point position, std::string path = "") {
+int run_trail(Graph& graph, Point position) {
     if(!inBounds(graph, position)) return 0;
     int currentHeight = getCell(graph, position);
     if(currentHeight == 9){
-        if(paths.find(path) != paths.end()) return 0;
-        paths.insert(path);
         return 1;
     }
-    path += "(" + std::to_string(position.x) + "," + std::to_string(position.y) + ")";
     printf("(%d, %d) = %d\n", position.x, position.y, currentHeight);
 
     // Run in all directions, backtrack at top.
@@ -63,7 +59,7 @@ int run_trail(Graph& graph, Point position, std::string path = "") {
         auto nextPos = position + newDirection;
         auto nextCell = getCell(graph, nextPos);
         if(nextCell == currentHeight + 1) {
-            total += run_trail(graph, nextPos, path);
+            total += run_trail(graph, nextPos);
         }
     }
 
