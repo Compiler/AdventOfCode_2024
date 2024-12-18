@@ -1,6 +1,10 @@
 #include <climits>
 #include <fstream>
+#include <functional>
+#include <queue>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 typedef std::vector<std::vector<int>> Graph;
@@ -22,28 +26,32 @@ bool inBounds(const Graph& g, const Point& p) {
     return p.y >= 0 && p.y < g.size() && g[p.y].size() > p.x && p.x >= 0;
 }
 
-int run_trail(Graph& graph, Point position, Point lastPosition = {-INT_MAX, -INT_MAX}, Point direction = {0, 0}, int lastHeight = -1, bool root = true) {
-    Point newPosition = position + direction;
-    if(!inBounds(graph, position) || !inBounds(graph, newPosition) ) return 0;
-    int currentHeight = graph[position.y][position.x];
-    if(currentHeight == 9) {
-        printf("Success!\n");
-        return 1;
-    }
-    int newHeight = graph[newPosition.y][newPosition.x];
-    if(newPosition == lastPosition) return 0;
-    printf("Entered: (%d, %d) from (%d, %d), new height %d, old one is %d\n", newPosition.x, newPosition.y, position.x, position.y, newHeight, currentHeight);
-    if(!root && currentHeight + 1 != newHeight) return 0;
+int getCell(const Graph& g, const Point& p) {
+    if(!inBounds(g, p)) return INT_MIN;
+    return g[p.y][p.x];
+}
 
-    printf("Ran to %d at (%d, %d)\n", currentHeight, newPosition.x, newPosition.y);
+int run_trail(Graph& graph, Point position) {
+    if(!inBounds(graph, position)) return 0;
+    int currentHeight = getCell(graph, position);
+    if(currentHeight == 9) return 1;
+    printf("(%d, %d) = %d\n", position.x, position.y, currentHeight);
+
     // Run in all directions, backtrack at top.
     int total = 0;
-    for(auto& newDirection : directions) total += run_trail(graph, newPosition, position, newDirection, currentHeight, false);
+    std::queue<Point> nextPositions;
+    for(auto& newDirection : directions) {
+        auto nextPos = position + newDirection;
+        auto nextCell = getCell(graph, nextPos);
+        if(nextCell == currentHeight + 1) {
+            run_trail(graph, nextPositions.front());
+        }
+    }
+
     return total;
 }
 
 int main() {
-    
     std::ifstream file("puzzle_input.txt");
     std::string line;
      
