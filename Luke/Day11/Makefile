@@ -3,7 +3,7 @@ main: part1 part2
 
 CXX_FLAGS=-std=c++17
 
-DAY=day10
+DAY=day11
 part1: 
 	g++ $(CXX_FLAGS) $(DAY)_1.cpp -o out_$(DAY)_1
 	./out_$(DAY)_1
