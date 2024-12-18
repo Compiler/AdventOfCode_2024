@@ -44,6 +44,7 @@ int main() {
 
     for(ull i = 0; i < 25; i++){
         step(stones);
+        for(auto s : stones) printf("%lld ", s); printf("\n");
     }
 
     printf("Num stones: %lld\n", stones.size());
