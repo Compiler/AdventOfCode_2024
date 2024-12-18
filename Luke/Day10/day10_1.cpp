@@ -11,13 +11,27 @@ typedef std::vector<std::vector<int>> Graph;
 struct Point{ 
     int x,y;
 
-    bool operator==(const Point& other) {
+    bool operator==(const Point& other) const {
         return other.x == x && other.y == y;
     }
 
     Point operator+(const Point& other) {
         return {other.x + x, other.y + y};
     }
+
+    std::size_t operator()() const {
+        std::size_t h1 = std::hash<int>{}(x); 
+        std::size_t h2 = std::hash<int>{}(y);  
+
+        return h1 ^ (h2 << 1);
+    }
+    std::size_t operator()(const Point& p) const {
+        std::size_t h1 = std::hash<int>{}(p.x); 
+        std::size_t h2 = std::hash<int>{}(p.y);  
+
+        return h1 ^ (h2 << 1);
+    }
+
 };
 
 std::vector<Point> directions = {{1,0}, {-1,0}, {0, 1}, {0, -1}};
@@ -31,20 +45,24 @@ int getCell(const Graph& g, const Point& p) {
     return g[p.y][p.x];
 }
 
-int run_trail(Graph& graph, Point position) {
+int run_trail(Graph& graph, std::unordered_set<Point, Point>& seenPaths, Point position) {
     if(!inBounds(graph, position)) return 0;
     int currentHeight = getCell(graph, position);
+    if(seenPaths.find(position) != seenPaths.end()) {
+        printf("Already seen %d,%d\n", position.x, position.y);
+        return 0;
+    }
+    seenPaths.insert(position);
     if(currentHeight == 9) return 1;
     printf("(%d, %d) = %d\n", position.x, position.y, currentHeight);
 
     // Run in all directions, backtrack at top.
     int total = 0;
-    std::queue<Point> nextPositions;
     for(auto& newDirection : directions) {
         auto nextPos = position + newDirection;
         auto nextCell = getCell(graph, nextPos);
         if(nextCell == currentHeight + 1) {
-            run_trail(graph, nextPositions.front());
+            total += run_trail(graph, seenPaths, nextPos);
         }
     }
 
@@ -69,7 +87,8 @@ int main() {
     int trailScore = 0;
     for(auto& trailHead : trailHeads) {
         printf("Running trail (%d, %d)\n", trailHead.x, trailHead.y);
-        trailScore += run_trail(graph, trailHead);
+        std::unordered_set<Point, Point> seenPaths;
+        trailScore += run_trail(graph, seenPaths, trailHead);
     }
     printf("Trail scores sum: %d\n", trailScore);
 
