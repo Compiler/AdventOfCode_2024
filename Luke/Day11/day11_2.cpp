@@ -42,7 +42,8 @@ int main() {
     std::istringstream stream(line);
     while(stream >> line) stones.push_back(std::stoi(line));
 
-    for(ull i = 0; i < 25; i++){
+    for(ull i = 0; i < 75; i++){
+        printf("Step %d\n", i+1);
         step(stones);
     }
 
