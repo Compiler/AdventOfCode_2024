@@ -43,7 +43,7 @@ int main() {
     while(stream >> line) stones.push_back(std::stoi(line));
 
     for(ull i = 0; i < 75; i++){
-        printf("Step %d\n", i+1);
+        printf("Step %d has %d stones.\n", i+1, stones.size());
         step(stones);
     }
 
