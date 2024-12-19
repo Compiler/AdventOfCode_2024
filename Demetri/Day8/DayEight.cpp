@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <unordered_set>
-#include "../PointHelper.h"
+#include "../Point.h"
 
 bool is_in_bounds(int W, int r, int c) {
     return !(r < 0 || r >= W || c < 0 || c >= W);
