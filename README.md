@@ -4,4 +4,4 @@
 
 - YourName/Day#/...
 
-That's all! Have fun :P 
+(Will continue when I am back from vacation ! - Luke)
