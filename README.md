@@ -4,4 +4,3 @@
 
 - YourName/Day#/...
 
-(Will continue when I am back from vacation ! - Luke)
